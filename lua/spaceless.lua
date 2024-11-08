@@ -2,6 +2,44 @@ local api, fn = vim.api, vim.fn
 
 local M = {}
 
+local config = {
+   disabled_filetypes = {
+      "NvimTree",
+      "TelescopePrompt",
+      "aerial",
+      "alpha",
+      "checkhealth",
+      "dapui-repl",
+      "dapui_breakpoints",
+      "dapui_console",
+      "dapui_scopes",
+      "dapui_stacks",
+      "dapui_watches",
+      "DressingInput",
+      "DressingSelect",
+      "help",
+      "lazy",
+      "NeogitStatus",
+      "NeogitLogView",
+      "mason",
+      "neotest-summary",
+      "neo-tree",
+      "neo-tree-popup",
+      "netrw",
+      "noice",
+      "notify",
+      "prompt",
+      "qf",
+      "oil",
+      "undotree",
+  }
+}
+
+local function should_disable()
+   return vim.tbl_contains(config.disabled_filetypes, vim.bo.ft)
+      or vim.api.nvim_buf_get_option(0, "buftype") == "terminal"
+end
+
 function M.onInsertEnter()
   local curline = api.nvim_win_get_cursor(0)[1]
   vim.b.insert_top = curline
@@ -53,6 +91,10 @@ function M.onTextChanged()
 end
 
 function M.onTextChangedI()
+  if should_disable() then
+    return
+  end
+
   -- Handle motion this way (rather than checking if
   -- b:insert_bottom < curline) to catch the case where the user presses
   -- Enter, types whitespace, moves up, and presses Enter again.
